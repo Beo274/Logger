@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/roman/Documents/C++/Logger/build",
+  "command": "/usr/bin/c++   -g -o CMakeFiles/Logger.dir/main.cpp.o -c /home/roman/Documents/C++/Logger/main.cpp",
+  "file": "/home/roman/Documents/C++/Logger/main.cpp",
+  "output": "CMakeFiles/Logger.dir/main.cpp.o"
+}
+]
