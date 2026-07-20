@@ -21,15 +21,18 @@ namespace logger {
     {
         public:
             Logger(std::string, LogLevel);
+            Logger(std::string);
             ~Logger();
 
             LoggerStream debug();
             LoggerStream info();
             LoggerStream warning();
 
+            void setLevel(LogLevel);
+
         private:
             std::string file_name; 
-            LogLevel level; 
+            LogLevel level = LogLevel::INFO; 
             std::ofstream out;
 
     };

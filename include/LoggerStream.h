@@ -18,11 +18,11 @@ namespace logger {
 
         template <typename T>
         LoggerStream& operator<<(const T& value) {
-            if (lvl != "")
+            if (!lvl.empty())
             {
                 buffer << value;
-                return *this; 
             }
+            return *this; 
         }
 
     private:
