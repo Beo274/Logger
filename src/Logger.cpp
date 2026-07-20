@@ -13,57 +13,49 @@ namespace logger
             out.close();
     }
     
-    void Logger::debug(std::string msg)
+    LoggerStream Logger::debug()
     {
         if (level >= LogLevel::DEBUG)
         {
-            MessageFormat message_format(msg, "DEBUG");
             out.open(file_name, std::ios::out | std::ios::app);
             if (out.is_open())
             {
-                out << message_format.format_message();
+                return LoggerStream(out, "DEBUG");
             }
-            else 
-            {
+            else
                 std::cerr << "Не удалось открыть файл логов" << std::endl;
-            }
-            out.close();
         }
+        return LoggerStream(out, "");
     }
     
-    void Logger::info(std::string msg)
+    LoggerStream Logger::info()
     {
         if (level >= LogLevel::INFO) 
         {
-            MessageFormat message_format(msg, "INFO");
             out.open(file_name, std::ios::out | std::ios::app);
             if (out.is_open())
             {
-                out << message_format.format_message();
-                out.close();
+                return LoggerStream(out, "INFO");
             }
-            else 
-            {
+            else
                 std::cerr << "Не удалось открыть файл логов" << std::endl;
-            }
+            
         }
+        return LoggerStream(out, "");
     }
     
-    void Logger::warning(std::string msg)
+    LoggerStream Logger::warning()
     {
         if (level == LogLevel::WARNING) 
         {
-            MessageFormat message_format(msg, "WARNING");
             out.open(file_name, std::ios::out | std::ios::app);
             if (out.is_open())
             {
-                out << message_format.format_message();
-                out.close();
+                return LoggerStream(out, "WARNING");
             }
-            else 
-            {
+            else
                 std::cerr << "Не удалось открыть файл логов" << std::endl;
-            }
         }
+        return LoggerStream(out, "");
     }
 }

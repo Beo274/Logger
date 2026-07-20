@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "../include/MessageFormat.h"
+#include "LoggerStream.h"
 
 namespace logger {
 
@@ -19,20 +19,18 @@ namespace logger {
 
     class Logger
     {
-    public:
-        Logger(std::string, LogLevel);
-        ~Logger();
+        public:
+            Logger(std::string, LogLevel);
+            ~Logger();
 
-        void debug(std::string);
-        void info(std::string);
-        void warning(std::string);
+            LoggerStream debug();
+            LoggerStream info();
+            LoggerStream warning();
 
-        friend std::ostream& operator<< (std::ostream& os, const Logger& logger);
-
-    private:
-        std::string file_name; 
-        LogLevel level; 
-        std::ofstream out;
+        private:
+            std::string file_name; 
+            LogLevel level; 
+            std::ofstream out;
 
     };
 }
