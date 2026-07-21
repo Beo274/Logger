@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include "LoggerStream.h"
+#include "LoggerStrategy/LoggerStrategy.h"
 
 namespace logger {
 
@@ -30,7 +31,12 @@ namespace logger {
 
             void setLevel(LogLevel);
 
+            void setStrategy(LoggerStrategy&);
+
+            void write(std::string);
+
         private:
+            LoggerStrategy* strategy;
             std::string file_name; 
             LogLevel level = LogLevel::INFO; 
             std::ofstream out;

@@ -11,10 +11,14 @@
 
 namespace logger {
 
+    class Logger;
+
     class LoggerStream {
     public:
-        LoggerStream(std::ofstream&, const std::string&);
+        LoggerStream(const std::string&, Logger*);
         ~LoggerStream();
+
+        std::string getFormattedLog();
 
         template <typename T>
         LoggerStream& operator<<(const T& value) {
@@ -26,11 +30,12 @@ namespace logger {
         }
 
     private:
-        std::ofstream& out;
+        // std::ofstream& out;
+        std::string formated_msg;
+        Logger *logger_;
         std::string lvl;
         std::ostringstream buffer;
     };
-
 }
 
 #endif

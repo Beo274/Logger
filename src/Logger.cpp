@@ -5,61 +5,56 @@ namespace logger
 {
     Logger::Logger(std::string t_file_name, LogLevel t_level) : file_name(t_file_name), level(t_level)
     {
-        out.open(file_name, std::ios::out | std::ios::app);
     }
 
     Logger::Logger(std::string t_file_name) : file_name(t_file_name)
     {
-        out.open(file_name, std::ios::out | std::ios::app);
     }
 
     Logger::~Logger()
     {
-        if (out.is_open())
-            out.close();
     }
     
     LoggerStream Logger::debug()
     {
         if (level == LogLevel::DEBUG)
         {
-            if (!out.is_open())
-            {
-                out.open(file_name, std::ios::out | std::ios::app);   
-            }
-            return LoggerStream(out, "DEBUG");
+            
+            return LoggerStream("DEBUG", this);
         }
-        return LoggerStream(out, "");
+        return LoggerStream("", this);
     }
     
     LoggerStream Logger::info()
     {
         if (level <= LogLevel::INFO) 
         {
-            if (!out.is_open())
-            {
-                out.open(file_name, std::ios::out | std::ios::app);   
-            }
-            return LoggerStream(out, "INFO");
+            return LoggerStream("INFO", this);
         }
-        return LoggerStream(out, "");
+        return LoggerStream("", this);
     }
     
     LoggerStream Logger::warning()
     {
         if (level <= LogLevel::WARNING) 
         {
-            if (!out.is_open())
-            {
-                out.open(file_name, std::ios::out | std::ios::app);   
-            }
-            return LoggerStream(out, "WARNING");
+            return LoggerStream("WARNING", this);
         }
-        return LoggerStream(out, "");
+        return LoggerStream("", this);
     }
     
     void Logger::setLevel(LogLevel new_lvl)
     {
         this->level = new_lvl;    
+    }
+    
+    void Logger::setStrategy(LoggerStrategy& strategy)
+    {
+        this->strategy = &strategy;
+    }
+    
+    void Logger::write(std::string msg)
+    {
+        strategy->write(msg);
     }
 }

@@ -1,11 +1,14 @@
 #include <iostream>
 #include <cstdlib>
 #include "../include/Logger.h"
+#include "../include/LoggerStrategy/FileLoggerStrategy.h"
 
 int main(int, char **)
 {
-    logger::Logger log("testlog.txt");
+    logger::Logger log("testlog.txt", logger::LogLevel::INFO);
 
+    auto *fileLogStrategy = new logger::FileLoggerStrategy("testlog.txt");
+    log.setStrategy(*fileLogStrategy);
     int lvl = 0;
     std::string msg;
     std::cout << "Введите численный уровень лога: ";
