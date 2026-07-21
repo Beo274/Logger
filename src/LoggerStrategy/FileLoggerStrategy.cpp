@@ -14,7 +14,7 @@ namespace logger
             out.close();
     }
 
-    void FileLoggerStrategy::write(std::string message) 
+    void FileLoggerStrategy::write(const std::string message) 
     {
         if (out.is_open())
         {

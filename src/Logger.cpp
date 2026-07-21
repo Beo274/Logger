@@ -19,7 +19,7 @@ namespace logger
     {
         if (level == LogLevel::DEBUG)
         {
-            
+            // Возвращает поток, который сохраняет в себя всё и форматирует итоговую строку
             return LoggerStream("DEBUG", this);
         }
         return LoggerStream("", this);

@@ -18,8 +18,6 @@ namespace logger {
         LoggerStream(const std::string&, Logger*);
         ~LoggerStream();
 
-        std::string getFormattedLog();
-
         template <typename T>
         LoggerStream& operator<<(const T& value) {
             if (!lvl.empty())
@@ -30,8 +28,6 @@ namespace logger {
         }
 
     private:
-        // std::ofstream& out;
-        std::string formated_msg;
         Logger *logger_;
         std::string lvl;
         std::ostringstream buffer;

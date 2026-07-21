@@ -15,7 +15,7 @@ namespace logger
         FileLoggerStrategy(std::string file_name);
         ~FileLoggerStrategy();
 
-        void write(std::string message);
+        void write(const std::string message) override;
 
     private:
         std::string file_name;
