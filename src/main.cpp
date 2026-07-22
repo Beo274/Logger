@@ -8,53 +8,72 @@
 logger::LogLevel toLogLevel(std::string str_lvl)
 {
     if (str_lvl == "DEBUG")    return logger::LogLevel::DEBUG;  
+    if (str_lvl == "INFO")    return logger::LogLevel::INFO; 
     if (str_lvl == "WARNING")  return logger::LogLevel::WARNING;
     // По умолчанию 
-    return logger::LogLevel::INFO;
+    return logger::LogLevel::NO;
 }
+
 
 int main(int argc, char* argv[])
 {
-    std::string file_name = argv[1];
-    logger::LogLevel log_lvl = toLogLevel(argv[2]);
-    // 0 - file, 1 - socket
-    int strategy_number = 0;
-    std::cout << "Введите способ логирования: ";
-    std::cin >> strategy_number;
-    logger::LoggerStrategy *strategy;
-    if (strategy_number == 0) 
+    if (argc == 1 || argc > 3)
     {
-        strategy = new logger::FileLoggerStrategy(argv[1]);
+        std::cerr << "Неверно переданы обязательные параметры: имя файла логирования и уровень логирования по-умолчанию" 
+                  << std::endl;
+        return 1;
     }
-    else
+    while (true)
     {
-        strategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
-    }
-    logger::Logger log(strategy, logger::LogLevel::INFO);
-    int lvl = 0;
-    std::cout << "Введите численный уровень лога: ";
-    std::cin >> lvl;
-    std::cin.ignore();
+        // f - file, s - socket
+        char strategy_number = 0;
+        std::cout << "Введите способ логирования(f/s): ";
+        std::cin >> strategy_number;
 
-    std::string msg;
-    std::cout << "Введите сообщение лога: ";
-    std::getline(std::cin, msg);
-    switch (lvl)
-    {
-    case 0:
-    {
-        log.debug() << "Полученное сообщение: " << msg;
-        break;
-    }
-    case 1:
-    {
-        log.info() << "Полученное сообщение: " << msg;
-        break;
-    }
-    case 2:
-    {
-        log.warning() << "Полученное сообщение: " << msg;
-        break;
-    }
+        logger::LoggerStrategy *strategy;
+        if (strategy_number == 's')
+        {
+            strategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
+            std::cout << ">>> Выбранный способ: сокет\n";
+        }
+        else
+        {
+            strategy = new logger::FileLoggerStrategy(argv[1]);
+            std::cout << ">>> Выбранный способ: файл\n";
+        }
+
+        // Передаем способ логирования и минимальный уровень логирования
+        logger::Logger log = (argc == 3)
+                                 ? logger::Logger(strategy, toLogLevel(argv[2]))
+                                 : logger::Logger(strategy);
+        int lvl = 0;
+        std::cout << "Введите численный уровень лога: ";
+        std::cin >> lvl;
+        std::cin.ignore();
+
+        std::string msg;
+        std::cout << "Введите сообщение лога: ";
+        std::getline(std::cin, msg);
+        switch (lvl)
+        {
+        case 1:
+        {
+            log.debug() << "Полученное сообщение: " << msg;
+            break;
+        }
+        case 2:
+        {
+            log.info() << "Полученное сообщение: " << msg;
+            break;
+        }
+        case 3:
+        {
+            log.warning() << "Полученное сообщение: " << msg;
+            break;
+        }
+        }
+        std::cout << "Нажмите любую кнопку для продолжения...";
+        std::cin.get();
+        system("clear");
     }
 }

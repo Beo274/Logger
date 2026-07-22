@@ -12,17 +12,20 @@ namespace logger {
 
     enum class LogLevel 
     {
-        DEBUG   = 0,
-        INFO    = 1,
-        WARNING = 2
+        DEBUG   = 1,
+        INFO    = 2,
+        WARNING = 3,
+        NO      = 4  // Если уровень логирования введен неверно
     };
 
+    std::ostream& operator<<(std::ostream& os, LogLevel lvl);
 
     class Logger
     {
         public:
             Logger(LoggerStrategy *strategy, LogLevel lvl);
-            Logger(std::string);
+            Logger(LoggerStrategy *strategy);
+            Logger();
             ~Logger();
 
             LoggerStream debug();

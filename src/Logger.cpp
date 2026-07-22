@@ -3,11 +3,26 @@
 
 namespace logger
 {
+    std::ostream& operator<<(std::ostream& os, LogLevel lvl)
+    {
+        switch(lvl)
+        {
+            case LogLevel::DEBUG: return os << "DEBUG";
+            case LogLevel::INFO: return os << "INFO";
+            case LogLevel::WARNING: return os << "WARNING";
+        }
+        return os;
+    }
+
     Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
     {
     }
 
-    Logger::Logger(std::string t_file_name) : file_name(t_file_name)
+    Logger::Logger(LoggerStrategy* t_strategy) : strategy(t_strategy)
+    {
+    }
+    
+    Logger::Logger()
     {
     }
 
@@ -17,7 +32,8 @@ namespace logger
     
     LoggerStream Logger::debug()
     {
-        if (level == LogLevel::DEBUG)
+        // Если минимально допустимый уровень меньше, чем уровень сообщения, то все хорошо
+        if (level <= LogLevel::DEBUG)
         {
             // Возвращает поток, который сохраняет в себя всё и форматирует итоговую строку
             return LoggerStream("DEBUG", this);
