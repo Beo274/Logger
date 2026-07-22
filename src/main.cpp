@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdlib>
+#include <thread>
+#include <vector>
 #include "../include/Logger.h"
 #include "../include/LoggerStrategy/LoggerStrategy.h"
 #include "../include/LoggerStrategy/FileLoggerStrategy.h"
@@ -14,6 +16,28 @@ logger::LogLevel toLogLevel(std::string str_lvl)
     return logger::LogLevel::NO;
 }
 
+void write_log(logger::Logger& log, std::string msg, char lvl)
+{
+    switch (lvl)
+        {
+        case '1':
+        {
+            log.debug() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            break;
+        }
+        case '2':
+        {
+            log.info() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            break;
+        }
+        case '3':
+        {
+            log.warning() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            break;
+        }
+        }
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -25,6 +49,7 @@ int main(int argc, char* argv[])
     }
     while (true)
     {
+        std::cout << "Для выхода введите 'q'\n";
         // f - file, s - socket
         char strategy_number = 0;
         std::cout << "Введите способ логирования(f/s): ";
@@ -36,6 +61,10 @@ int main(int argc, char* argv[])
             strategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
             std::cout << ">>> Выбранный способ: сокет\n";
         }
+        else if (strategy_number == 'q')
+        {
+            return 0;
+        }
         else
         {
             strategy = new logger::FileLoggerStrategy(argv[1]);
@@ -46,34 +75,39 @@ int main(int argc, char* argv[])
         logger::Logger log = (argc == 3)
                                  ? logger::Logger(strategy, toLogLevel(argv[2]))
                                  : logger::Logger(strategy);
-        int lvl = 0;
+        char lvl = 0;
         std::cout << "Введите численный уровень лога: ";
         std::cin >> lvl;
         std::cin.ignore();
 
+        if (lvl == 'q') return 0;
+
         std::string msg;
         std::cout << "Введите сообщение лога: ";
         std::getline(std::cin, msg);
-        switch (lvl)
+
+        if (msg == "q") return 0;
+
+        int n = 0;
+        std::cout << "Введите, сколько раз вы хотите записать это сообщение: ";
+        std::cin >> n;
+        
+        // Создаем n потоков, которые записывают одно и то же сообщение
+        std::vector<std::thread> threads;
+        for (int i = 0; i < n; i++)
+            threads.push_back(std::thread(write_log, std::ref(log), msg, lvl));
+
+
+        // Дожидаемся все потоки
+        for (auto& thread : threads)
         {
-        case 1:
-        {
-            log.debug() << "Полученное сообщение: " << msg;
-            break;
+            if (thread.joinable())
+                thread.join();
         }
-        case 2:
-        {
-            log.info() << "Полученное сообщение: " << msg;
-            break;
-        }
-        case 3:
-        {
-            log.warning() << "Полученное сообщение: " << msg;
-            break;
-        }
-        }
-        std::cout << "Нажмите любую кнопку для продолжения...";
+        
+        std::cout << "Нажмите Enter для продолжения...";
         std::cin.get();
+
         system("clear");
     }
 }
