@@ -15,14 +15,19 @@ namespace logger
             // Создание текущего времени и перевод в tm формат
             auto now = std::chrono::system_clock::now();
             std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-            std::tm* local_tm = std::localtime(&now_time);
+            std::tm local_tm{};
+            ::localtime_r(&now_time, &local_tm);
+
+            char time_buf[32];
+            std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", &local_tm);
             
 
             std::ostringstream ss;
+            ss.imbue(std::locale::classic());
 
             // Запись в текстовый поток
-            ss << std::put_time(local_tm, "%Y-%m-%d %H:%M:%S") << " | " 
-               << std::setw(12) << std::right << lvl << " | "
+            ss << time_buf << " | " 
+               << std::setw(7) << std::right << lvl << " | "
                << buffer.str() << "\n";
             
             // Возвращение в основной класс логгера итоговую строку

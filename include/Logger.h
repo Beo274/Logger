@@ -21,7 +21,7 @@ namespace logger {
     class Logger
     {
         public:
-            Logger(std::string, LogLevel);
+            Logger(LoggerStrategy *strategy, LogLevel lvl);
             Logger(std::string);
             ~Logger();
 
