@@ -1,28 +1,36 @@
 #include <iostream>
 #include <cstdlib>
 #include "../include/Logger.h"
+#include "../include/LoggerStrategy/LoggerStrategy.h"
 #include "../include/LoggerStrategy/FileLoggerStrategy.h"
 #include "../include/LoggerStrategy/SocketLoggerStrategy.h"
 
-int main(int, char **)
+logger::LogLevel toLogLevel(std::string str_lvl)
 {
-    logger::Logger log("testlog.txt", logger::LogLevel::INFO);
+    if (str_lvl == "DEBUG")    return logger::LogLevel::DEBUG;  
+    if (str_lvl == "WARNING")  return logger::LogLevel::WARNING;
+    // По умолчанию 
+    return logger::LogLevel::INFO;
+}
 
+int main(int argc, char* argv[])
+{
+    std::string file_name = argv[1];
+    logger::LogLevel log_lvl = toLogLevel(argv[2]);
     // 0 - file, 1 - socket
-    int strategy = 0;
+    int strategy_number = 0;
     std::cout << "Введите способ логирования: ";
-    std::cin >> strategy;
-    if (strategy == 0) 
+    std::cin >> strategy_number;
+    logger::LoggerStrategy *strategy;
+    if (strategy_number == 0) 
     {
-        auto *fileLogStrategy = new logger::FileLoggerStrategy("testlog.txt");
-        log.setStrategy(*fileLogStrategy);
+        strategy = new logger::FileLoggerStrategy(argv[1]);
     }
     else
     {
-        auto *socketLogStrategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
-        log.setStrategy(*socketLogStrategy);
+        strategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
     }
-
+    logger::Logger log(strategy, logger::LogLevel::INFO);
     int lvl = 0;
     std::cout << "Введите численный уровень лога: ";
     std::cin >> lvl;

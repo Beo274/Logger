@@ -14,8 +14,9 @@ namespace logger
             out.close();
     }
 
-    void FileLoggerStrategy::write(const std::string message) 
+    void FileLoggerStrategy::write(const std::string& message) 
     {
+        std::lock_guard<std::mutex> lock(locker);
         if (out.is_open())
         {
             out << message;

@@ -13,7 +13,7 @@ namespace logger {
         LoggerStrategy();
         ~LoggerStrategy();
 
-        virtual void write(std::string) = 0;
+        virtual void write(const std::string& message) = 0;
 
     private:
 

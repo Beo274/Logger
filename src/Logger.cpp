@@ -3,7 +3,7 @@
 
 namespace logger
 {
-    Logger::Logger(std::string t_file_name, LogLevel t_level) : file_name(t_file_name), level(t_level)
+    Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
     {
     }
 

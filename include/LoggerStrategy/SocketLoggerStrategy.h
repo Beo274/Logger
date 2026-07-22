@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string>
+#include <mutex>
 
 namespace logger 
 {
@@ -17,7 +18,7 @@ namespace logger
         SocketLoggerStrategy(std::string ip, int port);
         ~SocketLoggerStrategy();
 
-        void write(std::string msg) override;
+        void write(const std::string& msg) override;
 
     private:
         bool connect();
@@ -26,6 +27,7 @@ namespace logger
         std::string ip;
         int port;
         int socket_fd = -1;
+        std::mutex locker;
     };   
 }
 

@@ -5,6 +5,7 @@
 
 #include "LoggerStrategy.h"
 #include <fstream>
+#include <mutex>
 
 
 namespace logger 
@@ -15,11 +16,12 @@ namespace logger
         FileLoggerStrategy(std::string file_name);
         ~FileLoggerStrategy();
 
-        void write(const std::string message) override;
+        void write(const std::string& message) override;
 
     private:
         std::string file_name;
         std::ofstream out;
+        std::mutex locker;
     };
 }
 

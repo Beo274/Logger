@@ -61,14 +61,14 @@ namespace logger
         }
     }
 
-    void SocketLoggerStrategy::write(std::string msg)
+    void SocketLoggerStrategy::write(const std::string& msg)
     {
+        std::lock_guard<std::mutex> lock(locker);
         if (socket_fd == -1 && !connect()) 
         {
             return;
         }
 
-        msg += "\n";
         const char *buffer = msg.c_str();
         size_t bytes_left = msg.size();
         size_t total_sent = 0;
@@ -84,7 +84,6 @@ namespace logger
                 disconnect(); 
                 break;
             }
-
             total_sent += static_cast<size_t>(sent);
         }
     }
