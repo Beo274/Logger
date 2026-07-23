@@ -13,18 +13,32 @@ namespace logger
         }
         return os;
     }
-
-    Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
+    
+    Logger& Logger::getInstance()
     {
-    }
-
-    Logger::Logger(LoggerStrategy* t_strategy) : strategy(t_strategy)
-    {
+        static Logger instance;
+        return instance;
     }
     
-    Logger::Logger()
+    LogLevel Logger::getLevel()
     {
+        return level;
     }
+    
+    void Logger::init(LoggerStrategy *strategy, LogLevel lvl)
+    {
+        std::lock_guard<std::mutex> lock(init_mutex);
+        this->strategy = strategy;
+        this->level = lvl;
+    }
+
+    // Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
+    // {
+    // }
+
+    // Logger::Logger(LoggerStrategy* t_strategy) : strategy(t_strategy)
+    // {
+    // }
 
     Logger::~Logger()
     {

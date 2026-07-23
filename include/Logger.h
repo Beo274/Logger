@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <mutex>
 #include "LoggerStream.h"
 #include "LoggerStrategy/LoggerStrategy.h"
 
@@ -23,9 +24,14 @@ namespace logger {
     class Logger
     {
         public:
-            Logger(LoggerStrategy *strategy, LogLevel lvl);
-            Logger(LoggerStrategy *strategy);
-            Logger();
+            static Logger& getInstance();
+            static LogLevel getLevel();
+            void init(LoggerStrategy *strategy, LogLevel lvl = LogLevel::INFO);
+
+
+            // Logger(LoggerStrategy *strategy, LogLevel lvl);
+            // Logger(LoggerStrategy *strategy);
+            
             ~Logger();
 
             LoggerStream debug();
@@ -39,9 +45,13 @@ namespace logger {
             void write(std::string);
 
         private:
+            Logger() = default;
+
+            std::mutex init_mutex;
+
             LoggerStrategy* strategy;
             std::string file_name; 
-            LogLevel level = LogLevel::INFO; 
+            static inline LogLevel level = LogLevel::INFO; 
             std::ofstream out;
 
     };

@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <thread>
 #include <vector>
+#include <random>
 #include "../include/Logger.h"
 #include "../include/LoggerStrategy/LoggerStrategy.h"
 #include "../include/LoggerStrategy/FileLoggerStrategy.h"
@@ -16,26 +17,73 @@ logger::LogLevel toLogLevel(std::string str_lvl)
     return logger::LogLevel::NO;
 }
 
-void write_log(logger::Logger& log, std::string msg, char lvl)
+void load()
 {
+    const std::vector<std::string> resources = {"Cache", "Database", "Cookies", "Config"};
+    
+    // Подготовка рандомайзера
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // Указание диапазонов
+    std::uniform_int_distribution<> dist_for_i(0, 3);
+    std::uniform_int_distribution<> dist_for_percent(15, 30);
+
+    // Выбор ресурса
+    int i = dist_for_i(gen);
+    std::string res = resources.at(i);
+
+    // Выбор начального значения
+    int percent = dist_for_percent(gen);
+
+    while (percent < 100)
+    {
+        // Вывод текущего процента загрузки в лог с указанием потока
+        logger::Logger::getInstance().info() << res << ": загрузка " << percent << "% " 
+                        << "Поток #" << std::this_thread::get_id();
+
+        // Увеличения процента загрузки
+        int step = dist_for_percent(gen);
+        percent += step;
+
+        // Условие завершения и вывод в лог сообщения о завершении
+        if (percent >= 100)
+        {
+            logger::Logger::getInstance().info() << "Загрузка завершена: " << res 
+                        << "Поток #" << std::this_thread::get_id();
+        }
+    }
+
+}
+
+void write_log(std::string msg, char lvl)
+{
+    // Записываем сообщение в лог
     switch (lvl)
         {
         case '1':
         {
-            log.debug() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            logger::Logger::getInstance().debug() << "Полученное сообщение: " << msg 
+                        << "Поток #" << std::this_thread::get_id();
             break;
         }
         case '2':
         {
-            log.info() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            logger::Logger::getInstance().info() << "Полученное сообщение: " << msg 
+                        << "Поток #" << std::this_thread::get_id();
             break;
         }
         case '3':
         {
-            log.warning() << "Полученное сообщение: " << msg << " Поток #" << std::this_thread::get_id();
+            logger::Logger::getInstance().warning() << "Полученное сообщение: " << msg 
+                        << "Поток #" << std::this_thread::get_id();
             break;
         }
         }
+
+        // Дополнительная логика: имитация загрузки ресурсов
+        if (logger::Logger::getLevel() <= logger::LogLevel::INFO)
+            load();
 }
 
 
@@ -72,9 +120,14 @@ int main(int argc, char* argv[])
         }
 
         // Передаем способ логирования и минимальный уровень логирования
-        logger::Logger log = (argc == 3)
-                                 ? logger::Logger(strategy, toLogLevel(argv[2]))
-                                 : logger::Logger(strategy);
+        if (argc == 3)
+        {
+            logger::Logger::getInstance().init(strategy, toLogLevel(argv[2]));
+        }
+        else
+        {
+            logger::Logger::getInstance().init(strategy);
+        }
         char lvl = 0;
         std::cout << "Введите численный уровень лога: ";
         std::cin >> lvl;
@@ -88,14 +141,23 @@ int main(int argc, char* argv[])
 
         if (msg == "q") return 0;
 
-        int n = 0;
-        std::cout << "Введите, сколько раз вы хотите записать это сообщение: ";
-        std::cin >> n;
+        
+        int n = 100000;
+        while (n > std::thread::hardware_concurrency())
+        {
+            std::cout << "Введите, сколько раз вы хотите записать это сообщение (Максимум:  " << std::thread::hardware_concurrency() << "):";
+            std::cin >> n;
+            std::cin.ignore();
+            if (n > std::thread::hardware_concurrency())
+                std::cout << "Слишком большое число. Максимальное число - " << std::thread::hardware_concurrency() << std::endl;
+        }
+
+        
         
         // Создаем n потоков, которые записывают одно и то же сообщение
         std::vector<std::thread> threads;
         for (int i = 0; i < n; i++)
-            threads.push_back(std::thread(write_log, std::ref(log), msg, lvl));
+            threads.push_back(std::thread(write_log, msg, lvl));
 
 
         // Дожидаемся все потоки
