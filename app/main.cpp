@@ -61,19 +61,19 @@ void write_log(std::string msg, char lvl)
     // Записываем сообщение в лог
     switch (lvl)
         {
-        case '1':
+        case 'd':
         {
             Logger::getInstance().debug() << "Полученное сообщение: " << msg 
                         << " Поток #" << std::this_thread::get_id();
             break;
         }
-        case '2':
+        case 'i':
         {
             Logger::getInstance().info() << "Полученное сообщение: " << msg 
                         << " Поток #" << std::this_thread::get_id();
             break;
         }
-        case '3':
+        case 'w':
         {
             Logger::getInstance().warning() << "Полученное сообщение: " << msg 
                         << " Поток #" << std::this_thread::get_id();
@@ -129,12 +129,18 @@ int main(int argc, char* argv[])
             Logger::getInstance().init(strategy);
         }
         char lvl = 0;
-        std::cout << "Введите численный уровень лога: ";
+        std::cout << "Введите численный уровень лога(d/i/w): ";
         std::cin >> lvl;
         std::cin.ignore();
 
         if (lvl == 'q') return 0;
-
+        if (lvl != 'd' || lvl != 'D'
+         || lvl != 'i' || lvl != 'I'
+         || lvl != 'w' || lvl != 'W') 
+        {
+            std::cout << "Введен неверный уровень\n";
+            return 0;
+        }
         std::string msg;
         std::cout << "Введите сообщение лога: ";
         std::getline(std::cin, msg);
@@ -148,7 +154,6 @@ int main(int argc, char* argv[])
             std::cout << "Введите, сколько раз вы хотите записать это сообщение (Максимум:  " << std::thread::hardware_concurrency() << "):";
             std::cin >> n;
             std::cin.ignore();
-            std::cout << n;
             if (n > std::thread::hardware_concurrency() || n < 1)
                 std::cout << ">>> Неверное число. Диапазон 1 - " << std::thread::hardware_concurrency() << std::endl;
             
