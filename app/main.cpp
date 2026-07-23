@@ -134,9 +134,9 @@ int main(int argc, char* argv[])
         std::cin.ignore();
 
         if (lvl == 'q') return 0;
-        if (lvl != 'd' || lvl != 'D'
-         || lvl != 'i' || lvl != 'I'
-         || lvl != 'w' || lvl != 'W') 
+        if (lvl != 'd' && lvl != 'D'
+         && lvl != 'i' && lvl != 'I'
+         && lvl != 'w' && lvl != 'W') 
         {
             std::cout << "Введен неверный уровень\n";
             return 0;
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
         {
             std::cout << "Введите, сколько раз вы хотите записать это сообщение (Максимум:  " << std::thread::hardware_concurrency() << "):";
             std::cin >> n;
-            std::cin.ignore();
+            std::cin.clear();
             if (n > std::thread::hardware_concurrency() || n < 1)
                 std::cout << ">>> Неверное число. Диапазон 1 - " << std::thread::hardware_concurrency() << std::endl;
             
