@@ -5,24 +5,33 @@
 
 #include <iostream>
 #include <fstream>
+#include <mutex>
 #include "LoggerStream.h"
 #include "LoggerStrategy/LoggerStrategy.h"
 
-namespace logger {
+
 
     enum class LogLevel 
     {
-        DEBUG   = 0,
-        INFO    = 1,
-        WARNING = 2
+        DEBUG   = 1,
+        INFO    = 2,
+        WARNING = 3,
+        NO      = 4  // Если уровень логирования введен неверно
     };
 
+    std::ostream& operator<<(std::ostream& os, LogLevel lvl);
 
     class Logger
     {
         public:
-            Logger(LoggerStrategy *strategy, LogLevel lvl);
-            Logger(std::string);
+            static Logger& getInstance();
+            static LogLevel getLevel();
+            void init(LoggerStrategy *strategy, LogLevel lvl = LogLevel::INFO);
+
+
+            // Logger(LoggerStrategy *strategy, LogLevel lvl);
+            // Logger(LoggerStrategy *strategy);
+            
             ~Logger();
 
             LoggerStream debug();
@@ -36,12 +45,16 @@ namespace logger {
             void write(std::string);
 
         private:
+            Logger() = default;
+
+            std::mutex init_mutex;
+
             LoggerStrategy* strategy;
             std::string file_name; 
-            LogLevel level = LogLevel::INFO; 
+            static inline LogLevel level = LogLevel::INFO; 
             std::ofstream out;
 
     };
-}
+
 
 #endif

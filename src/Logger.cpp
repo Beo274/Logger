@@ -1,15 +1,43 @@
 #include "../include/Logger.h"
 
 
-namespace logger
-{
-    Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
+
+    std::ostream& operator<<(std::ostream& os, LogLevel lvl)
     {
+        switch(lvl)
+        {
+            case LogLevel::DEBUG: return os << "DEBUG";
+            case LogLevel::INFO: return os << "INFO";
+            case LogLevel::WARNING: return os << "WARNING";
+        }
+        return os;
+    }
+    
+    Logger& Logger::getInstance()
+    {
+        static Logger instance;
+        return instance;
+    }
+    
+    LogLevel Logger::getLevel()
+    {
+        return level;
+    }
+    
+    void Logger::init(LoggerStrategy *strategy, LogLevel lvl)
+    {
+        std::lock_guard<std::mutex> lock(init_mutex);
+        this->strategy = strategy;
+        this->level = lvl;
     }
 
-    Logger::Logger(std::string t_file_name) : file_name(t_file_name)
-    {
-    }
+    // Logger::Logger(LoggerStrategy* t_strategy, LogLevel t_level) : strategy(t_strategy), level(t_level)
+    // {
+    // }
+
+    // Logger::Logger(LoggerStrategy* t_strategy) : strategy(t_strategy)
+    // {
+    // }
 
     Logger::~Logger()
     {
@@ -17,7 +45,8 @@ namespace logger
     
     LoggerStream Logger::debug()
     {
-        if (level == LogLevel::DEBUG)
+        // Если минимально допустимый уровень меньше, чем уровень сообщения, то все хорошо
+        if (level <= LogLevel::DEBUG)
         {
             // Возвращает поток, который сохраняет в себя всё и форматирует итоговую строку
             return LoggerStream("DEBUG", this);
@@ -57,4 +86,3 @@ namespace logger
     {
         strategy->write(msg);
     }
-}

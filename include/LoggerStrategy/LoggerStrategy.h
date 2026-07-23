@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace logger {
+
 
     class LoggerStrategy
     {
@@ -18,6 +18,6 @@ namespace logger {
     private:
 
     };
-}
+
 
 #endif

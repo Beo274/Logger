@@ -1,8 +1,7 @@
 #include "../include/LoggerStream.h"
 #include "../include/Logger.h"
 
-namespace logger 
-{
+
     LoggerStream::LoggerStream(const std::string& t_level, Logger* t_logger) :  lvl(t_level), logger_(t_logger)
     {
     }
@@ -34,4 +33,3 @@ namespace logger
             logger_->write(ss.str());
         }
     }
-}
