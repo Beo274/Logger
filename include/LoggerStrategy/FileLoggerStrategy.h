@@ -8,8 +8,7 @@
 #include <mutex>
 
 
-namespace logger 
-{
+
     class FileLoggerStrategy : public LoggerStrategy
     {
     public:
@@ -23,6 +22,6 @@ namespace logger
         std::ofstream out;
         std::mutex locker;
     };
-}
+
 
 #endif

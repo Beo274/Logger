@@ -9,7 +9,7 @@
 #include "LoggerStream.h"
 #include "LoggerStrategy/LoggerStrategy.h"
 
-namespace logger {
+
 
     enum class LogLevel 
     {
@@ -55,6 +55,6 @@ namespace logger {
             std::ofstream out;
 
     };
-}
+
 
 #endif

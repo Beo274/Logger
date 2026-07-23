@@ -9,7 +9,6 @@
 #include <iomanip>
 #include <iostream>
 
-namespace logger {
 
     class Logger;
 
@@ -32,6 +31,6 @@ namespace logger {
         std::string lvl;
         std::ostringstream buffer;
     };
-}
+
 
 #endif

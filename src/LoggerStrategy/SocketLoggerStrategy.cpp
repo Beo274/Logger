@@ -1,8 +1,7 @@
 #include "../../include/LoggerStrategy/SocketLoggerStrategy.h"
 #include <iostream>
 
-namespace logger 
-{
+
     SocketLoggerStrategy::SocketLoggerStrategy(std::string t_ip, int t_port) : ip(t_ip), port(t_port)
     {
         connect();
@@ -87,4 +86,3 @@ namespace logger
             total_sent += static_cast<size_t>(sent);
         }
     }
-}

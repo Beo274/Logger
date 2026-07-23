@@ -10,8 +10,7 @@
 #include <string>
 #include <mutex>
 
-namespace logger 
-{
+
     class SocketLoggerStrategy : public LoggerStrategy
     {
     public:
@@ -29,6 +28,6 @@ namespace logger
         int socket_fd = -1;
         std::mutex locker;
     };   
-}
+
 
 #endif

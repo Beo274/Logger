@@ -1,8 +1,7 @@
 #include "../include/Logger.h"
 
 
-namespace logger
-{
+
     std::ostream& operator<<(std::ostream& os, LogLevel lvl)
     {
         switch(lvl)
@@ -87,4 +86,3 @@ namespace logger
     {
         strategy->write(msg);
     }
-}

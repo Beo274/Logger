@@ -8,13 +8,13 @@
 #include "../include/LoggerStrategy/FileLoggerStrategy.h"
 #include "../include/LoggerStrategy/SocketLoggerStrategy.h"
 
-logger::LogLevel toLogLevel(std::string str_lvl)
+LogLevel toLogLevel(std::string str_lvl)
 {
-    if (str_lvl == "DEBUG")    return logger::LogLevel::DEBUG;  
-    if (str_lvl == "INFO")    return logger::LogLevel::INFO; 
-    if (str_lvl == "WARNING")  return logger::LogLevel::WARNING;
+    if (str_lvl == "DEBUG")    return LogLevel::DEBUG;  
+    if (str_lvl == "INFO")    return LogLevel::INFO; 
+    if (str_lvl == "WARNING")  return LogLevel::WARNING;
     // По умолчанию 
-    return logger::LogLevel::NO;
+    return LogLevel::NO;
 }
 
 void load()
@@ -39,8 +39,8 @@ void load()
     while (percent < 100)
     {
         // Вывод текущего процента загрузки в лог с указанием потока
-        logger::Logger::getInstance().info() << res << ": загрузка " << percent << "% " 
-                        << "Поток #" << std::this_thread::get_id();
+        Logger::getInstance().info() << res << ": загрузка " << percent << "%" 
+                        << " Поток #" << std::this_thread::get_id();
 
         // Увеличения процента загрузки
         int step = dist_for_percent(gen);
@@ -49,8 +49,8 @@ void load()
         // Условие завершения и вывод в лог сообщения о завершении
         if (percent >= 100)
         {
-            logger::Logger::getInstance().info() << "Загрузка завершена: " << res 
-                        << "Поток #" << std::this_thread::get_id();
+            Logger::getInstance().info() << "Загрузка завершена: " << res 
+                        << " Поток #" << std::this_thread::get_id();
         }
     }
 
@@ -63,26 +63,26 @@ void write_log(std::string msg, char lvl)
         {
         case '1':
         {
-            logger::Logger::getInstance().debug() << "Полученное сообщение: " << msg 
+            Logger::getInstance().debug() << "Полученное сообщение: " << msg 
                         << "Поток #" << std::this_thread::get_id();
             break;
         }
         case '2':
         {
-            logger::Logger::getInstance().info() << "Полученное сообщение: " << msg 
+            Logger::getInstance().info() << "Полученное сообщение: " << msg 
                         << "Поток #" << std::this_thread::get_id();
             break;
         }
         case '3':
         {
-            logger::Logger::getInstance().warning() << "Полученное сообщение: " << msg 
+            Logger::getInstance().warning() << "Полученное сообщение: " << msg 
                         << "Поток #" << std::this_thread::get_id();
             break;
         }
         }
 
         // Дополнительная логика: имитация загрузки ресурсов
-        if (logger::Logger::getLevel() <= logger::LogLevel::INFO)
+        if (Logger::getLevel() <= LogLevel::INFO)
             load();
 }
 
@@ -103,10 +103,10 @@ int main(int argc, char* argv[])
         std::cout << "Введите способ логирования(f/s): ";
         std::cin >> strategy_number;
 
-        logger::LoggerStrategy *strategy;
+        LoggerStrategy *strategy;
         if (strategy_number == 's')
         {
-            strategy = new logger::SocketLoggerStrategy("127.0.0.1", 9000);
+            strategy = new SocketLoggerStrategy("127.0.0.1", 9000);
             std::cout << ">>> Выбранный способ: сокет\n";
         }
         else if (strategy_number == 'q')
@@ -115,18 +115,18 @@ int main(int argc, char* argv[])
         }
         else
         {
-            strategy = new logger::FileLoggerStrategy(argv[1]);
+            strategy = new FileLoggerStrategy(argv[1]);
             std::cout << ">>> Выбранный способ: файл\n";
         }
 
         // Передаем способ логирования и минимальный уровень логирования
         if (argc == 3)
         {
-            logger::Logger::getInstance().init(strategy, toLogLevel(argv[2]));
+            Logger::getInstance().init(strategy, toLogLevel(argv[2]));
         }
         else
         {
-            logger::Logger::getInstance().init(strategy);
+            Logger::getInstance().init(strategy);
         }
         char lvl = 0;
         std::cout << "Введите численный уровень лога: ";

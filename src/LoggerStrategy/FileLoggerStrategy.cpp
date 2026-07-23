@@ -1,7 +1,6 @@
 #include "../../include/LoggerStrategy/FileLoggerStrategy.h"
 
-namespace logger 
-{
+
     FileLoggerStrategy::FileLoggerStrategy(std::string t_file_name) : file_name(t_file_name)
     {
         if (!out.is_open())
@@ -29,4 +28,3 @@ namespace logger
             out.flush();
         }
     }
-}
