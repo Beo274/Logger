@@ -64,19 +64,19 @@ void write_log(std::string msg, char lvl)
         case '1':
         {
             Logger::getInstance().debug() << "Полученное сообщение: " << msg 
-                        << "Поток #" << std::this_thread::get_id();
+                        << " Поток #" << std::this_thread::get_id();
             break;
         }
         case '2':
         {
             Logger::getInstance().info() << "Полученное сообщение: " << msg 
-                        << "Поток #" << std::this_thread::get_id();
+                        << " Поток #" << std::this_thread::get_id();
             break;
         }
         case '3':
         {
             Logger::getInstance().warning() << "Полученное сообщение: " << msg 
-                        << "Поток #" << std::this_thread::get_id();
+                        << " Поток #" << std::this_thread::get_id();
             break;
         }
         }
@@ -143,16 +143,16 @@ int main(int argc, char* argv[])
 
         
         int n = 100000;
-        while (n > std::thread::hardware_concurrency())
+        while (n > std::thread::hardware_concurrency() || n < 1)
         {
             std::cout << "Введите, сколько раз вы хотите записать это сообщение (Максимум:  " << std::thread::hardware_concurrency() << "):";
             std::cin >> n;
             std::cin.ignore();
-            if (n > std::thread::hardware_concurrency())
-                std::cout << "Слишком большое число. Максимальное число - " << std::thread::hardware_concurrency() << std::endl;
+            std::cout << n;
+            if (n > std::thread::hardware_concurrency() || n < 1)
+                std::cout << ">>> Неверное число. Диапазон 1 - " << std::thread::hardware_concurrency() << std::endl;
+            
         }
-
-        
         
         // Создаем n потоков, которые записывают одно и то же сообщение
         std::vector<std::thread> threads;
