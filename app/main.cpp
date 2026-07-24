@@ -95,29 +95,32 @@ int main(int argc, char* argv[])
                   << std::endl;
         return 1;
     }
+
+    std::cout << "Для выхода введите 'q'\n";
+    // f - file, s - socket
+    char strategy_number = 0;
+    std::cout << "Введите способ логирования(f/s): ";
+    std::cin >> strategy_number;
+
+    LoggerStrategy *strategy;
+    if (strategy_number == 's')
+    {
+        strategy = new SocketLoggerStrategy("127.0.0.1", 9000);
+        std::cout << ">>> Выбранный способ: сокет\n";
+    }
+    else if (strategy_number == 'q')
+    {
+        return 0;
+    }
+    else
+    {
+        strategy = new FileLoggerStrategy(argv[1]);
+        std::cout << ">>> Выбранный способ: файл\n";
+    }
+
     while (true)
     {
-        std::cout << "Для выхода введите 'q'\n";
-        // f - file, s - socket
-        char strategy_number = 0;
-        std::cout << "Введите способ логирования(f/s): ";
-        std::cin >> strategy_number;
-
-        LoggerStrategy *strategy;
-        if (strategy_number == 's')
-        {
-            strategy = new SocketLoggerStrategy("127.0.0.1", 9000);
-            std::cout << ">>> Выбранный способ: сокет\n";
-        }
-        else if (strategy_number == 'q')
-        {
-            return 0;
-        }
-        else
-        {
-            strategy = new FileLoggerStrategy(argv[1]);
-            std::cout << ">>> Выбранный способ: файл\n";
-        }
+        
 
         // Передаем способ логирования и минимальный уровень логирования
         if (argc == 3)
@@ -172,6 +175,7 @@ int main(int argc, char* argv[])
                 thread.join();
         }
         
+        std::cin.ignore();
         std::cout << "Нажмите Enter для продолжения...";
         std::cin.get();
 
