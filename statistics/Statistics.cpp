@@ -2,14 +2,21 @@
 
 Statistics::~Statistics()
 {
-
+    running = false;
 }
 
 void Statistics::init(int N, int T)
 {
-    std::lock_guard<std::mutex> lock(locker);
     this->N = N;
     this->T = T;
+    running = true;
+    last_print = std::chrono::steady_clock::now();
+
+
+    auto sys_now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(sys_now);
+    std::tm now_tm = *std::localtime(&now_c);
+    std::cout << "[" << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << "]" << std::endl;
 }
 
 Message Statistics::parse_log(std::string str_msg)
@@ -111,26 +118,56 @@ void Statistics::upd_avg(const Message &message)
     stat.av_len = (stat.av_len * stat.msg_counter + message.msg.length()) / (stat.msg_counter + 1);
 }
 
+void Statistics::wait() 
+{
+    while (running) 
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(T));
+        if (changed)
+        {
+            std::cout << std::endl << "Вызов по таймеру\n";
+            print_stat();  
+        }  
+        if (!running) 
+            break;
+    }
+}
+
 void Statistics::print_stat()
 {
-    if (stat.msg_counter == N)
-    {
-        std::cout << "Минимальная длина = " << stat.min_len << std::endl;
-        std::cout << "Максимальная длина = " << stat.max_len << std::endl;
-        std::cout << "Средняя длина = " << stat.av_len << std::endl;
+    auto now = std::chrono::steady_clock::now();
+    last_print = now;
+    auto sys_now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(sys_now);
+    std::tm now_tm = *std::localtime(&now_c);
 
-        std::cout << std::endl
-                  << "DEBUG сообщений: " << stat.level_msg_counters["DEBUG"] << std::endl;
-        std::cout << "INFO сообщений: " << stat.level_msg_counters["INFO"] << std::endl;
-        std::cout << "WARNING сообщений: " << stat.level_msg_counters["WARNING"] << std::endl;
+    std::cout  << "=== Статистика по полученным сообщениям ==== " << std::endl;
 
-        std::cout << "Сообщений за последний час:" << stat.time_msg_counter.size() << std::endl;
-    }
+    std::cout << "Минимальная длина: " << stat.min_len << std::endl;
+    std::cout << "Максимальная длина: " << stat.max_len << std::endl;
+    std::cout << "Средняя длина: " << stat.av_len << std::endl;
+
+    std::cout << std::endl
+              << "DEBUG сообщений: " << stat.level_msg_counters["DEBUG"] << std::endl;
+    std::cout << "INFO сообщений: " << stat.level_msg_counters["INFO"] << std::endl;
+    std::cout << "WARNING сообщений: " << stat.level_msg_counters["WARNING"] << std::endl;
+
+    std::cout << std::endl
+              << "Сообщений за последний час: " << stat.time_msg_counter.size() << std::endl
+              << std::endl;
+
+    changed = false;
 }
 
 void Statistics::add_message(std::string str_message)
 {
+    if (stat.msg_counter == 0)
+    {
+        worker = std::thread(&Statistics::wait, this);
+    }
+
     Message message = parse_log(str_message);
+    changed = true;
     
     upd_max(message);
     upd_min(message);
@@ -138,18 +175,12 @@ void Statistics::add_message(std::string str_message)
     upd_counter();
     upd_counter_by_level(message);
     upd_counter_by_time(message);
-    
-    std::cout << "Минимальная длина = " << stat.min_len << std::endl;
-    std::cout << "Максимальная длина = " << stat.max_len << std::endl;
-    std::cout << "Средняя длина = " << stat.av_len << std::endl;
 
-    std::cout << std::endl << "DEBUG сообщений: " << stat.level_msg_counters["DEBUG"] << std::endl;
-    std::cout << "INFO сообщений: " << stat.level_msg_counters["INFO"] << std::endl;
-    std::cout << "WARNING сообщений: " << stat.level_msg_counters["WARNING"] << std::endl;
-
-    std::cout << "Сообщений за последний час (после обновления):" << stat.time_msg_counter.size() << std::endl;
-
-    print_stat();
+    if (stat.msg_counter == N)
+    {
+        std::cout << "Вызов по кл-ву\n";
+        print_stat();
+    }
     
 }
 

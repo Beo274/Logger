@@ -65,8 +65,12 @@ void Receiver::start_listening(const int port)
             ssize_t bytes_read = ::recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
             if (bytes_read > 0) {
-                // std::cout << std::string_view(buffer, bytes_read) << std::flush;
-                Statistics::getInstance().add_message(buffer);
+                std::vector<std::string> messages = split_data(buffer);
+                for (auto message : messages)
+                { 
+                    std::cout << message << std::endl << std::flush;
+                    Statistics::getInstance().add_message(buffer);
+                }
             } 
             else if (bytes_read == 0) {
                 std::cout << ">>> Клиент закрыл соединение.\n";
@@ -85,6 +89,20 @@ void Receiver::stop()
     is_running = false;
     close_client();
     close_server();
+}
+
+std::vector<std::string> Receiver::split_data(std::string buffer)
+{
+    std::vector<std::string> msgs;
+    int pos = 0;
+    while ((pos = buffer.find('\n')) != std::string::npos) 
+    {
+        // Вытаскиваем одно готовое сообщение
+        std::string single_message = buffer.substr(0, pos);
+        msgs.push_back(single_message);
+        buffer.erase(0, pos + 1);
+    }
+    return msgs;
 }
 
 void Receiver::close_client()

@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 struct Stat
 {
@@ -34,6 +36,7 @@ public:
     static Statistics& getInstance();
     ~Statistics();
     void init(int N, int T);
+    void wait();
 
     Message parse_log(std::string str_msg);
 
@@ -59,7 +62,11 @@ private:
     int N;
     int T;
 
-    bool changed;
+    std::thread worker;
+
+    bool running = false;
+    bool changed = false;
+    std::chrono::steady_clock::time_point last_print = {};
 
     Stat stat;
     

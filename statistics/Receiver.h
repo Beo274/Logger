@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <cstring>
+#include <vector>
 #include "Statistics.h"
 
 class Receiver
@@ -19,6 +20,7 @@ public:
 
     void start_listening(const int port);
     void stop();
+    std::vector<std::string> split_data(std::string);
 
 private:
     int server_fd = -1;
@@ -27,7 +29,6 @@ private:
 
     void close_client();
     void close_server();
-
 };
 
 #endif

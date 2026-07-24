@@ -82,8 +82,8 @@ void write_log(std::string msg, char lvl)
         }
 
         // Дополнительная логика: имитация загрузки ресурсов
-        // if (Logger::getLevel() <= LogLevel::INFO)
-        //     load();
+        if (Logger::getLevel() <= LogLevel::INFO)
+            load();
 }
 
 
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     while (true)
     {
         char lvl = 0;
-        std::cout << "Введите численный уровень лога(d/i/w): ";
+        std::cout << "Введите уровень лога (d - DEBUG/i - INFO/w - WARNING): ";
         std::cin >> lvl;
         std::cin.ignore();
 
