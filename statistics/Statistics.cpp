@@ -11,12 +11,6 @@ void Statistics::init(int N, int T)
     this->T = T;
     running = true;
     last_print = std::chrono::steady_clock::now();
-
-
-    auto sys_now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(sys_now);
-    std::tm now_tm = *std::localtime(&now_c);
-    std::cout << "[" << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << "]" << std::endl;
 }
 
 Message Statistics::parse_log(std::string str_msg)
@@ -76,6 +70,13 @@ Message Statistics::parse_log(std::string str_msg)
     return message;
 }
 
+
+size_t count_utf8_letters(const std::string& str) {
+    return std::count_if(str.begin(), str.end(), [](unsigned char c) {
+        return (c & 0xC0) != 0x80;
+    });
+}
+
 void Statistics::upd_counter_by_level(const Message &message)
 {
     if (message.lvl == "DEBUG")
@@ -92,7 +93,7 @@ void Statistics::upd_counter_by_time(Message &message)
     stat.time_msg_counter.push_back(t);
     while (stat.time_msg_counter.front() < t - 3600)
     {
-        std::cout << "Удаление старого времени" << std::endl;
+        // Удаление старого времени
         stat.time_msg_counter.pop_front();
     }
 }
@@ -104,18 +105,18 @@ void Statistics::upd_counter()
 
 void Statistics::upd_max(const Message &message)
 {
-    stat.max_len = (message.msg.length() > stat.max_len) ? message.msg.length() : stat.max_len;
+    stat.max_len = (count_utf8_letters(message.msg) > stat.max_len) ? count_utf8_letters(message.msg) : stat.max_len;
 }
 
 void Statistics::upd_min(const Message &message)
 {
-    stat.min_len = (message.msg.length() < stat.min_len) ? message.msg.length() : stat.min_len;
+    stat.min_len = (count_utf8_letters(message.msg) < stat.min_len) ? count_utf8_letters(message.msg) : stat.min_len;
 }
 
 void Statistics::upd_avg(const Message &message)
 {
     // Подсчет среднего на основе предыдущего среднего
-    stat.av_len = (stat.av_len * stat.msg_counter + message.msg.length()) / (stat.msg_counter + 1);
+    stat.av_len = (stat.av_len * stat.msg_counter + count_utf8_letters(message.msg)) / (stat.msg_counter + 1);
 }
 
 void Statistics::wait() 
@@ -124,10 +125,7 @@ void Statistics::wait()
     {
         std::this_thread::sleep_for(std::chrono::seconds(T));
         if (changed)
-        {
-            std::cout << std::endl << "Вызов по таймеру\n";
             print_stat();  
-        }  
         if (!running) 
             break;
     }
@@ -135,12 +133,6 @@ void Statistics::wait()
 
 void Statistics::print_stat()
 {
-    auto now = std::chrono::steady_clock::now();
-    last_print = now;
-    auto sys_now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(sys_now);
-    std::tm now_tm = *std::localtime(&now_c);
-
     std::cout  << "=== Статистика по полученным сообщениям ==== " << std::endl;
 
     std::cout << "Минимальная длина: " << stat.min_len << std::endl;
@@ -177,10 +169,7 @@ void Statistics::add_message(std::string str_message)
     upd_counter_by_time(message);
 
     if (stat.msg_counter == N)
-    {
-        std::cout << "Вызов по кл-ву\n";
         print_stat();
-    }
     
 }
 

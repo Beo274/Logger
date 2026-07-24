@@ -68,8 +68,8 @@ void Receiver::start_listening(const int port)
                 std::vector<std::string> messages = split_data(buffer);
                 for (auto message : messages)
                 { 
-                    std::cout << message << std::endl << std::flush;
-                    Statistics::getInstance().add_message(buffer);
+                    std::cout << message << std::flush;
+                    Statistics::getInstance().add_message(message);
                 }
             } 
             else if (bytes_read == 0) {
@@ -98,7 +98,7 @@ std::vector<std::string> Receiver::split_data(std::string buffer)
     while ((pos = buffer.find('\n')) != std::string::npos) 
     {
         // Вытаскиваем одно готовое сообщение
-        std::string single_message = buffer.substr(0, pos);
+        std::string single_message = buffer.substr(0, pos + 1);
         msgs.push_back(single_message);
         buffer.erase(0, pos + 1);
     }
