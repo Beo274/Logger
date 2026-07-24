@@ -6,22 +6,21 @@
 #include <unistd.h>     
 #include <sys/socket.h> 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <iostream>
 #include <cstring>
+#include "Statistics.h"
 
 class Receiver
 {
 public:
-    Receiver();
+    Receiver(const std::string ip, const int port);
     ~Receiver();
 
-    void start_listening();
+    void start_listening(const int port);
     void stop();
 
 private:
-    const int PORT = 9000;
-    const size_t BUFFER_SIZE = 1024;
-
     int server_fd = -1;
     int client_fd = -1;
     bool is_running = false;

@@ -1,6 +1,6 @@
 #include "Receiver.h"
 
-Receiver::Receiver()
+Receiver::Receiver(const std::string ip, const int port)
 {
     // Создаем сокет
     server_fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -15,8 +15,12 @@ Receiver::Receiver()
     // Настраиваем адрес
     sockaddr_in address{};
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(port);
+
+    if (::inet_pton(AF_INET, ip.c_str(), &address.sin_addr) <= 0) {
+        close_server();
+        throw std::runtime_error(">>> Неверный IP-адрес сервера: " + ip);
+    }
 
     // Привязываем сокет 
     if (::bind(server_fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0) {
@@ -38,9 +42,9 @@ Receiver::~Receiver()
     stop();
 }
 
-void Receiver::start_listening()
+void Receiver::start_listening(const int port)
 {
-    std::cout << ">>> Ожидание подключения на порту " << PORT << "...\n";
+    std::cout << ">>> Ожидание подключения на порту " << port << "...\n";
 
     while (is_running) {
         sockaddr_in client_addr{};
@@ -53,7 +57,7 @@ void Receiver::start_listening()
             continue;
         }
 
-        std::cout << ">>> Клиент подключился! Переходим в цикл чтения recv()...\n";
+        std::cout << ">>> Клиент подключился\n";
 
         char buffer[1024];
         while (is_running) {
@@ -61,7 +65,8 @@ void Receiver::start_listening()
             ssize_t bytes_read = ::recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
             if (bytes_read > 0) {
-                std::cout << std::string_view(buffer, bytes_read) << std::flush;
+                // std::cout << std::string_view(buffer, bytes_read) << std::flush;
+                Statistics::getInstance().add_message(buffer);
             } 
             else if (bytes_read == 0) {
                 std::cout << ">>> Клиент закрыл соединение.\n";

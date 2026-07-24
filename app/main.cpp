@@ -82,8 +82,8 @@ void write_log(std::string msg, char lvl)
         }
 
         // Дополнительная логика: имитация загрузки ресурсов
-        if (Logger::getLevel() <= LogLevel::INFO)
-            load();
+        // if (Logger::getLevel() <= LogLevel::INFO)
+        //     load();
 }
 
 
@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
     }
     else if (strategy_number == 'q')
     {
+        delete strategy;
         return 0;
     }
     else
@@ -117,12 +118,7 @@ int main(int argc, char* argv[])
         strategy = new FileLoggerStrategy(argv[1]);
         std::cout << ">>> Выбранный способ: файл\n";
     }
-
-    while (true)
-    {
-        
-
-        // Передаем способ логирования и минимальный уровень логирования
+    // Передаем способ логирования и минимальный уровень логирования
         if (argc == 3)
         {
             Logger::getInstance().init(strategy, toLogLevel(argv[2]));
@@ -131,17 +127,25 @@ int main(int argc, char* argv[])
         {
             Logger::getInstance().init(strategy);
         }
+
+    while (true)
+    {
         char lvl = 0;
         std::cout << "Введите численный уровень лога(d/i/w): ";
         std::cin >> lvl;
         std::cin.ignore();
 
-        if (lvl == 'q') return 0;
+        if (lvl == 'q') 
+        {
+            delete strategy;
+            return 0;
+        }
         if (lvl != 'd' && lvl != 'D'
          && lvl != 'i' && lvl != 'I'
          && lvl != 'w' && lvl != 'W') 
         {
             std::cout << "Введен неверный уровень\n";
+            delete strategy;
             return 0;
         }
         std::string msg;
@@ -181,4 +185,5 @@ int main(int argc, char* argv[])
 
         system("clear");
     }
+    delete strategy;
 }

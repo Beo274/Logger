@@ -28,9 +28,8 @@
             static LogLevel getLevel();
             void init(LoggerStrategy *strategy, LogLevel lvl = LogLevel::INFO);
 
-
-            // Logger(LoggerStrategy *strategy, LogLevel lvl);
-            // Logger(LoggerStrategy *strategy);
+            Logger(Logger &other) = delete;
+            void operator=(const Logger&) = delete;
             
             ~Logger();
 
