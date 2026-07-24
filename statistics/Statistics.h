@@ -1,10 +1,7 @@
-#ifndef STATISTICS_H
-#define STATISTICS_H
-
 #pragma once
 #include <mutex>
 #include <map>
-#include <vector>
+#include <deque>
 #include <ctime>
 #include <sstream>
 #include <iomanip>
@@ -17,10 +14,9 @@ struct Stat
         {"INFO",    0},
         {"WARNING", 0}
     };
-    std::vector<tm> time_msg_counter = {};
+    std::deque<time_t> time_msg_counter = {};
     int msg_counter                  = 0;
-    int hour_msg_counter             = 0;
-    int av_len                       = 0;
+    float av_len                     = 0;
     int max_len                      = 0;
     int min_len                      = INT32_MAX;
 };
@@ -41,11 +37,14 @@ public:
 
     Message parse_log(std::string str_msg);
 
-    int upd_counter_by_level(Message message);
-    int upd_counter_by_time(Message message);
-    int upd_counter(Message message);
-    int upd_max(Message message);
-    int upd_min(Message message);
+    void upd_counter_by_level(const Message &message);
+    void upd_counter_by_time(Message &message);
+    void upd_counter();
+    void upd_max(const Message &message);
+    void upd_min(const Message &message);
+    void upd_avg(const Message &message);
+
+    void print_stat();
 
     void add_message(std::string message);
 
@@ -60,8 +59,8 @@ private:
     int N;
     int T;
 
+    bool changed;
+
     Stat stat;
     
 };
-
-#endif

@@ -69,29 +69,63 @@ Message Statistics::parse_log(std::string str_msg)
     return message;
 }
 
-// int Statistics::upd_counter_by_level(Message message)
-// {
-    
-// }
-
-// int Statistics::upd_counter_by_time(Message message)
-// {
-    
-// }
-
-// int Statistics::upd_counter(Message message)
-// {
-    
-// }
-
-int Statistics::upd_max(Message message)
+void Statistics::upd_counter_by_level(const Message &message)
 {
-    return stat.max_len = (message.msg.length() > stat.max_len) ? message.msg.length() : stat.max_len;
+    if (message.lvl == "DEBUG")
+        stat.level_msg_counters["DEBUG"]++;
+    if (message.lvl == "INFO")
+        stat.level_msg_counters["INFO"]++; 
+    if (message.lvl == "WARNING")
+        stat.level_msg_counters["WARNING"]++;
 }
 
-int Statistics::upd_min(Message message)
+void Statistics::upd_counter_by_time(Message &message)
 {
-    return stat.min_len = (message.msg.length() < stat.min_len) ? message.msg.length() : stat.min_len;
+    std::time_t t = std::mktime(&message.time);
+    stat.time_msg_counter.push_back(t);
+    while (stat.time_msg_counter.front() < t - 3600)
+    {
+        std::cout << "Удаление старого времени" << std::endl;
+        stat.time_msg_counter.pop_front();
+    }
+}
+
+void Statistics::upd_counter()
+{
+    stat.msg_counter++;
+}
+
+void Statistics::upd_max(const Message &message)
+{
+    stat.max_len = (message.msg.length() > stat.max_len) ? message.msg.length() : stat.max_len;
+}
+
+void Statistics::upd_min(const Message &message)
+{
+    stat.min_len = (message.msg.length() < stat.min_len) ? message.msg.length() : stat.min_len;
+}
+
+void Statistics::upd_avg(const Message &message)
+{
+    // Подсчет среднего на основе предыдущего среднего
+    stat.av_len = (stat.av_len * stat.msg_counter + message.msg.length()) / (stat.msg_counter + 1);
+}
+
+void Statistics::print_stat()
+{
+    if (stat.msg_counter == N)
+    {
+        std::cout << "Минимальная длина = " << stat.min_len << std::endl;
+        std::cout << "Максимальная длина = " << stat.max_len << std::endl;
+        std::cout << "Средняя длина = " << stat.av_len << std::endl;
+
+        std::cout << std::endl
+                  << "DEBUG сообщений: " << stat.level_msg_counters["DEBUG"] << std::endl;
+        std::cout << "INFO сообщений: " << stat.level_msg_counters["INFO"] << std::endl;
+        std::cout << "WARNING сообщений: " << stat.level_msg_counters["WARNING"] << std::endl;
+
+        std::cout << "Сообщений за последний час:" << stat.time_msg_counter.size() << std::endl;
+    }
 }
 
 void Statistics::add_message(std::string str_message)
@@ -100,15 +134,22 @@ void Statistics::add_message(std::string str_message)
     
     upd_max(message);
     upd_min(message);
-    std::cout << "Сообщегние = " << message.msg << std::endl;
+    upd_avg(message);
+    upd_counter();
+    upd_counter_by_level(message);
+    upd_counter_by_time(message);
+    
     std::cout << "Минимальная длина = " << stat.min_len << std::endl;
     std::cout << "Максимальная длина = " << stat.max_len << std::endl;
+    std::cout << "Средняя длина = " << stat.av_len << std::endl;
 
+    std::cout << std::endl << "DEBUG сообщений: " << stat.level_msg_counters["DEBUG"] << std::endl;
+    std::cout << "INFO сообщений: " << stat.level_msg_counters["INFO"] << std::endl;
+    std::cout << "WARNING сообщений: " << stat.level_msg_counters["WARNING"] << std::endl;
 
+    std::cout << "Сообщений за последний час (после обновления):" << stat.time_msg_counter.size() << std::endl;
 
-
-    stat.msg_counter++;
-
+    print_stat();
     
 }
 
