@@ -95,31 +95,30 @@ int main(int argc, char* argv[])
                   << std::endl;
         return 1;
     }
-    while (true)
+
+    std::cout << "Для выхода введите 'q'\n";
+    // f - file, s - socket
+    char strategy_number = 0;
+    std::cout << "Введите способ логирования(f/s): ";
+    std::cin >> strategy_number;
+
+    LoggerStrategy *strategy;
+    if (strategy_number == 's')
     {
-        std::cout << "Для выхода введите 'q'\n";
-        // f - file, s - socket
-        char strategy_number = 0;
-        std::cout << "Введите способ логирования(f/s): ";
-        std::cin >> strategy_number;
-
-        LoggerStrategy *strategy;
-        if (strategy_number == 's')
-        {
-            strategy = new SocketLoggerStrategy("127.0.0.1", 9000);
-            std::cout << ">>> Выбранный способ: сокет\n";
-        }
-        else if (strategy_number == 'q')
-        {
-            return 0;
-        }
-        else
-        {
-            strategy = new FileLoggerStrategy(argv[1]);
-            std::cout << ">>> Выбранный способ: файл\n";
-        }
-
-        // Передаем способ логирования и минимальный уровень логирования
+        strategy = new SocketLoggerStrategy("127.0.0.1", 9000);
+        std::cout << ">>> Выбранный способ: сокет\n";
+    }
+    else if (strategy_number == 'q')
+    {
+        delete strategy;
+        return 0;
+    }
+    else
+    {
+        strategy = new FileLoggerStrategy(argv[1]);
+        std::cout << ">>> Выбранный способ: файл\n";
+    }
+    // Передаем способ логирования и минимальный уровень логирования
         if (argc == 3)
         {
             Logger::getInstance().init(strategy, toLogLevel(argv[2]));
@@ -128,17 +127,25 @@ int main(int argc, char* argv[])
         {
             Logger::getInstance().init(strategy);
         }
+
+    while (true)
+    {
         char lvl = 0;
-        std::cout << "Введите численный уровень лога(d/i/w): ";
+        std::cout << "Введите уровень лога (d - DEBUG/i - INFO/w - WARNING): ";
         std::cin >> lvl;
         std::cin.ignore();
 
-        if (lvl == 'q') return 0;
-        if (lvl != 'd' || lvl != 'D'
-         || lvl != 'i' || lvl != 'I'
-         || lvl != 'w' || lvl != 'W') 
+        if (lvl == 'q') 
+        {
+            delete strategy;
+            return 0;
+        }
+        if (lvl != 'd' && lvl != 'D'
+         && lvl != 'i' && lvl != 'I'
+         && lvl != 'w' && lvl != 'W') 
         {
             std::cout << "Введен неверный уровень\n";
+            delete strategy;
             return 0;
         }
         std::string msg;
@@ -153,7 +160,7 @@ int main(int argc, char* argv[])
         {
             std::cout << "Введите, сколько раз вы хотите записать это сообщение (Максимум:  " << std::thread::hardware_concurrency() << "):";
             std::cin >> n;
-            std::cin.ignore();
+            std::cin.clear();
             if (n > std::thread::hardware_concurrency() || n < 1)
                 std::cout << ">>> Неверное число. Диапазон 1 - " << std::thread::hardware_concurrency() << std::endl;
             
@@ -172,9 +179,11 @@ int main(int argc, char* argv[])
                 thread.join();
         }
         
+        std::cin.ignore();
         std::cout << "Нажмите Enter для продолжения...";
         std::cin.get();
 
         system("clear");
     }
+    delete strategy;
 }
