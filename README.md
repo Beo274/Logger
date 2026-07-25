@@ -18,7 +18,7 @@ cmake -S . -B build_static -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=./logg
 cmake --build build_static --target LoggerLib -j
 cmake --install build_static --component sdk
 ```
-Готовый файл .so появится в build_shared/
+Готовый файл .so появится в build_static/
 
 ### Статическая сборка библиотеки
 ```
@@ -74,7 +74,7 @@ Logger::getInstance().info() << "Сообщение";
 Logger::getInstance().warning() << "Сообщение";
 ```
 
-### Приложение для проверки (1)
+### Приложение для проверки (1) ✅
 1. Запуск
 ```
 ./LoggerApp имя_файла_логов уровень_логирования_по_умолчанию
@@ -87,7 +87,7 @@ Logger::getInstance().warning() << "Сообщение";
 >[!NOTE]
 > В любой момент можно ввести 'q' и выйти из приложения
 
-### Приложение сбора статистики логам (2)
+### Приложение сбора статистики логам (2) 📊
 1. Запуск
 ```
 ./StatisticsApp ip_адрес номер_сообщения_N порт таймаут_T_в_секундах
